@@ -1,0 +1,15 @@
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+# Provenance co-signs a FHIR Bundle. The fhir:signature blank node and all
+# its descendants are single-use, so topoWrite inlines them as [ ] blocks.
+<http://something4> a fhir:Provenance ;
+  fhir:id [ fhir:v "prov1" ] ;
+  fhir:target [ fhir:reference [ fhir:v "Bundle/signed" ] ] ;
+  fhir:recorded [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
+  fhir:signature [
+    fhir:when [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
+    fhir:who  [ fhir:reference [ fhir:v "Organization/ig-publisher" ] ] ;
+    fhir:sigFormat [ fhir:v "application/jose" ] ;
+    fhir:data  [ fhir:v "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..stub" ]
+  ] .

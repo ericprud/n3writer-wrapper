@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
 import { Writer, Parser, Store } from 'n3';
 import { topoWrite, reindent, expandLiterals } from '../src/index.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -30,56 +35,15 @@ async function roundTrip(ttl: string, prefixes: Record<string, string> = {}) {
   return { original: store, out, reparsed };
 }
 
-// ── FHIR Turtle fixtures (derived from rdf-sig-playground/examples/toy.yaml) ─
+// ── FHIR Turtle fixtures (see examples/ directory) ───────────────────────────
 
 const FHIR_PFX = {
   fhir: 'http://hl7.org/fhir/',
   xsd: 'http://www.w3.org/2001/XMLSchema#',
 };
 
-/**
- * Simplified FHIR Bundle with deeply-nested blank nodes.
- * Mirrors the structure used in toy.yaml's fhirBundleGraph.
- */
-const FHIR_BUNDLE = `
-  PREFIX fhir: <http://hl7.org/fhir/>
-  PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-  PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-  <http://hl7.org/fhir/Bundle/signed> a fhir:Bundle ;
-    fhir:id [ fhir:v "signed" ] ;
-    fhir:type [ fhir:v "collection" ] ;
-    fhir:timestamp [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
-    fhir:entry ( [
-      fhir:fullUrl [ fhir:v "http://something5"^^xsd:anyURI ] ;
-      fhir:resource ( <http://something5> )
-    ] ) .
-
-  <http://something5> a fhir:Observation ;
-    fhir:id [ fhir:v "obs1" ] ;
-    fhir:status [ fhir:v "final" ] ;
-    fhir:code [ fhir:text [ fhir:v "something" ] ] .
-`;
-
-/**
- * FHIR Provenance that co-signs the Bundle (toy.yaml's withProof for fhirProvenance).
- * The fhir:signature blank node is single-use → topoWrite should inline it.
- */
-const FHIR_PROVENANCE = `
-  PREFIX fhir: <http://hl7.org/fhir/>
-  PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-  <http://something4> a fhir:Provenance ;
-    fhir:id [ fhir:v "prov1" ] ;
-    fhir:target [ fhir:reference [ fhir:v "Bundle/signed" ] ] ;
-    fhir:recorded [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
-    fhir:signature [
-      fhir:when [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
-      fhir:who  [ fhir:reference [ fhir:v "Organization/ig-publisher" ] ] ;
-      fhir:sigFormat [ fhir:v "application/jose" ] ;
-      fhir:data  [ fhir:v "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..stub" ]
-    ] .
-`;
+const FHIR_BUNDLE     = readFileSync(join(__dirname, '../examples/fhir-bundle.ttl'), 'utf8');
+const FHIR_PROVENANCE = readFileSync(join(__dirname, '../examples/fhir-provenance.ttl'), 'utf8');
 
 // ── topoWrite ─────────────────────────────────────────────────────────────────
 

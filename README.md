@@ -34,6 +34,50 @@ const turtle = await new Promise<string>((resolve, reject) =>
 const pretty = expandLiterals(reindent(turtle));
 ```
 
+### Sample output
+
+Given `examples/fhir-provenance.ttl` — a FHIR Provenance resource co-signing a Bundle, where every blank node is single-use:
+
+```turtle
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<http://something4> a fhir:Provenance ;
+  fhir:id [ fhir:v "prov1" ] ;
+  fhir:target [ fhir:reference [ fhir:v "Bundle/signed" ] ] ;
+  fhir:recorded [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
+  fhir:signature [
+    fhir:when [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ] ;
+    fhir:who  [ fhir:reference [ fhir:v "Organization/ig-publisher" ] ] ;
+    fhir:sigFormat [ fhir:v "application/jose" ] ;
+    fhir:data  [ fhir:v "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..stub" ]
+  ] .
+```
+
+After `topoWrite` + `reindent` + `expandLiterals`:
+
+```turtle
+@prefix fhir: <http://hl7.org/fhir/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<http://something4> a fhir:Provenance;
+  fhir:id [ fhir:v "prov1" ];
+  fhir:target [
+    fhir:reference [ fhir:v "Bundle/signed" ]
+  ];
+  fhir:recorded [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ];
+  fhir:signature [
+    fhir:when [ fhir:v "2024-06-09T11:06:35+10:00"^^xsd:dateTime ];
+    fhir:who [
+      fhir:reference [ fhir:v "Organization/ig-publisher" ]
+    ];
+    fhir:sigFormat [ fhir:v "application/jose" ];
+    fhir:data [ fhir:v "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..stub" ]
+  ].
+```
+
+---
+
 ### `topoWrite(writer, quads)`
 
 Blank nodes that appear as an object **exactly once** are inlined as `[ ]` blocks.

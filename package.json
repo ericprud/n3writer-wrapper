@@ -1,0 +1,49 @@
+{
+  "name": "n3writer-wrapper",
+  "version": "1.0.0",
+  "description": "Helpers for n3.Writer: topological blank-node inlining, uniform reindent, and multiline literal expansion",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "rdf",
+    "turtle",
+    "n3",
+    "blank-node",
+    "pretty-print"
+  ],
+  "author": "Eric Prud'hommeaux",
+  "license": "MIT",
+  "peerDependencies": {
+    "n3": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "n3": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "n3": "^1.26.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}

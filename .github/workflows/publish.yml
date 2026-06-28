@@ -23,3 +23,5 @@ jobs:
       - run: npm test
       - run: npm config list
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -30,6 +30,10 @@
     "blank-node",
     "pretty-print"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericprud/n3writer-wrapper"
+  },
   "author": "Eric Prud'hommeaux",
   "license": "MIT",
   "peerDependencies": {

@@ -103,6 +103,33 @@ describe('topoWrite', () => {
     const { out } = await roundTrip(ttl);
     expect(out).toMatch(/_:/); // _:shared must remain explicit
   });
+
+  it('renders RDF collections as ( ) notation', async () => {
+    const ttl = `PREFIX ex: <http://example.org/> ex:s ex:p (ex:a ex:b) .`;
+    const { out, original, reparsed } = await roundTrip(ttl, { ex: 'http://example.org/' });
+    expect(out).toContain('(ex:a ex:b)');
+    expect(reparsed.size).toBe(original.size);
+  });
+
+  it('inlines blank-node list items as [ ] within ( )', async () => {
+    const ttl = `
+      PREFIX fhir: <http://hl7.org/fhir/>
+      <http://ex/s> fhir:entry ( [ fhir:v "a" ] [ fhir:v "b" ] ) .
+    `;
+    const { out, original, reparsed } = await roundTrip(ttl, { fhir: 'http://hl7.org/fhir/' });
+    expect(out).toMatch(/fhir:entry\s*\(/);
+    expect(out).not.toMatch(/_:b\d/);       // no explicit BN labels
+    expect(out).not.toMatch(/rdf:first/);   // no raw list triples
+    expect(reparsed.size).toBe(original.size);
+  });
+
+  it('handles nested collections: list-of-blanks each containing a sub-list', async () => {
+    // fhir:resource ( <item> ) nested inside fhir:entry ( [...] )
+    const { out, original, reparsed } = await roundTrip(FHIR_BUNDLE, FHIR_PFX);
+    expect(out).not.toMatch(/rdf:first/);
+    expect(out).not.toMatch(/rdf:rest/);
+    expect(reparsed.size).toBe(original.size);
+  });
 });
 
 // ── reindent ──────────────────────────────────────────────────────────────────
